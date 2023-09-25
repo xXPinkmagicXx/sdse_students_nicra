@@ -3,16 +3,13 @@ package edu.sdse.csvprocessor;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CityCSVProcessor {
 
 	List<CityRecord> AllRecords = new ArrayList<CityRecord>();
 
-	Map<String, List<CityRecord>> CityDictionary = new HashMap<String, List<CityRecord>>();
+	Map<String, List<CityRecord>> RecordsByCity = new HashMap<String, List<CityRecord>>();
 	class CityRecord {
 
 		int Id;
@@ -73,21 +70,84 @@ public class CityCSVProcessor {
 	public void MapData(){
 
 		// CLear
-		CityDictionary.clear();
+		RecordsByCity.clear();
 
 		for (var record : AllRecords){
 
 			// If city is not in dictionary
-			if (!CityDictionary.containsKey(record.City)){
+			if (!RecordsByCity.containsKey(record.City)){
 
-				CityDictionary.put(record.City, new ArrayList<CityRecord>());
+				RecordsByCity.put(record.City, new ArrayList<CityRecord>());
 			}
 
-			var cityList = CityDictionary.get(record.City);
+			var cityList = RecordsByCity.get(record.City);
 			cityList.add(record);
 
 		}
 
+	}
+
+	public void  ProcessData(){
+
+		for (Map.Entry<String, List<CityRecord>> entry : RecordsByCity.entrySet()) {
+			//...
+			var values = entry.getValue();
+			String key = entry.getKey();
+			// IF data is not there??
+
+			// The total number of entries for that city
+			var nEntries = values.size();
+
+			// The minimum year and the maximum year
+			int maxYear = GetMaximumYear(values);
+			int minYear = GetMinYear(values);
+
+			// The average population
+			var averagePopulation = GetAverage(values, nEntries);
+
+			System.out.printf("%s (%s - %s) with average population: %s \n", key, minYear, maxYear, averagePopulation);
+
+		}
+
+
+	}
+	private double GetAverage(List<CityRecord> data, int nEntries){
+
+		var population = 0d;
+
+		for (var entry : data){
+
+			population += entry.Population;
+
+		}
+
+		return population / nEntries;
+
+	}
+	private int GetMaximumYear(List<CityRecord> data){
+		int maxYear = 0;
+
+		for (var entry : data) {
+
+			if (entry.Year > maxYear){
+				maxYear = entry.Year;
+
+			}
+		}
+		return  maxYear;
+	}
+
+	private int GetMinYear(List<CityRecord> data){
+		int minYear = 3000;
+
+		for (var entry : data) {
+
+			if (entry.Year < minYear){
+				minYear = entry.Year;
+
+			}
+		}
+		return  minYear;
 	}
 
 	private String cleanRawValue(String rawValue) {
@@ -120,5 +180,6 @@ public class CityCSVProcessor {
 		
 		reader.readAndProcess(csvFile);
 		reader.MapData();
+		reader.ProcessData();
 	}
 }
