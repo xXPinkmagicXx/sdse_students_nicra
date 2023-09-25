@@ -55,6 +55,7 @@ public class CityCSVProcessor {
 	public static final void main(String[] args) {
 		CityCSVProcessor reader = new CityCSVProcessor();
 		
+		
 		File dataDirectory = new File("data/");
 		File csvFile = new File(dataDirectory, "Cities.csv");
 		
